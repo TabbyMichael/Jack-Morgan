@@ -10,6 +10,9 @@ import {
   signOut as firebaseSignOut,
   onAuthStateChanged,
   RecaptchaVerifier,
+  sendSignInLinkToEmail,
+  isSignInWithEmailLink,
+  signInWithEmailLink,
   UserCredential
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
@@ -27,6 +30,7 @@ interface AuthContextType {
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
   signInWithPhone: (phoneNumber: string) => Promise<any>;
+  signInWithEmail: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -67,12 +71,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithPhone = async (phoneNumber: string) => {
     try {
-      // Clear any existing reCAPTCHA widget
       if (window.recaptchaVerifier) {
         window.recaptchaVerifier.clear();
       }
 
-      // Create new reCAPTCHA verifier
       window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
         size: 'invisible',
         callback: () => {
@@ -80,7 +82,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       });
 
-      // Render the reCAPTCHA widget
       await window.recaptchaVerifier.render();
       
       console.log('Attempting phone sign in with:', phoneNumber);
@@ -98,9 +99,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error instanceof Error) {
         trackAuthEvent('phone_sign_in_error', { error: error.message });
       }
-      // Clear reCAPTCHA on error
       if (window.recaptchaVerifier) {
         window.recaptchaVerifier.clear();
+      }
+      throw error;
+    }
+  };
+
+  const signInWithEmail = async (email: string) => {
+    try {
+      const actionCodeSettings = {
+        url: `${window.location.origin}/auth/email-signin`,
+        handleCodeInApp: true
+      };
+
+      await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+      trackAuthEvent('email_link_sent');
+      window.localStorage.setItem('emailForSignIn', email);
+    } catch (error) {
+      console.error('Error sending email link:', error);
+      if (error instanceof Error) {
+        trackAuthEvent('email_link_error', { error: error.message });
       }
       throw error;
     }
@@ -125,6 +144,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       loading,
       signInWithGoogle,
       signInWithPhone,
+      signInWithEmail,
       signOut
     }}>
       {!loading && children}
