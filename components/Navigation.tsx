@@ -1,127 +1,138 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { Menu, X, Youtube, Instagram, Twitter } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Youtube, Instagram, Menu, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { usePathname } from "next/navigation";
+import { scrollToSection } from "@/lib/utils";
+
+const socialLinks = {
+  youtube: "https://www.youtube.com/@JackMorgan_RLP",
+  instagram: "https://www.instagram.com/jackmorgan_RLP/",
+  patreon: "https://www.patreon.com/JackMorganRLP"
+};
 
 const Navigation = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const navLinks = [
-    { href: '/', label: 'Home' },
-    { href: '/about', label: 'About' },
-    { href: '/content', label: 'Content' },
-    { href: '/merch', label: 'Merch' },
-    { href: '/events', label: 'Events' },
+  const navItems = [
+    { href: "/", label: "Home" },
+    { href: "/content", label: "Content" },
+    { href: "#merch", label: "Merch", section: 'merch' },
+    { href: "#events", label: "Events", section: 'events' },
   ];
 
-  const socialLinks = [
-    { href: 'https://youtube.com', icon: Youtube, label: 'YouTube' },
-    { href: 'https://instagram.com', icon: Instagram, label: 'Instagram' },
-    { href: 'https://twitter.com', icon: Twitter, label: 'Twitter' },
-  ];
+  const handleNavClick = (item: { href: string, label: string, section?: string }) => {
+    setIsOpen(false);
+    
+    if (item.section) {
+      if (pathname === '/') {
+        scrollToSection(item.section);
+      } else {
+        window.location.href = `/#${item.section}`;
+      }
+    } else {
+      window.location.href = item.href;
+    }
+  };
 
   return (
-    <nav className={`fixed w-full z-50 transition-all duration-300 ${
-      isScrolled ? 'bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60' : 'bg-transparent'
-    }`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <Link href="/" className="font-bold text-2xl hover:text-primary transition-colors">
-            JACK MORGAN
+    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b">
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link href="/" className="font-bold text-xl">
+            RLP
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-foreground/80 hover:text-primary transition-colors"
+            {navItems.map((item) => (
+              <Button
+                key={item.href}
+                variant="ghost"
+                onClick={() => handleNavClick(item)}
+                className="text-foreground/60 hover:text-foreground"
               >
-                {link.label}
-              </Link>
+                {item.label}
+              </Button>
             ))}
-            
-            <div className="flex items-center space-x-4">
-              {socialLinks.map((social) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-foreground/80 hover:text-primary transition-colors"
-                >
-                  <social.icon className="h-5 w-5" />
-                </a>
-              ))}
-            </div>
 
-            <Button
-              asChild
-              className="bg-primary text-primary-foreground hover:bg-primary/90"
-            >
+            {/* Social Links */}
+            <div className="flex items-center space-x-4">
               <a
-                href="https://patreon.com"
+                href={socialLinks.youtube}
                 target="_blank"
                 rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-primary transition-colors"
               >
-                Join Patreon
+                <Youtube className="h-5 w-5" />
               </a>
-            </Button>
+              <a
+                href={socialLinks.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
+                <Instagram className="h-5 w-5" />
+              </a>
+            </div>
           </div>
 
-          {/* Mobile Navigation */}
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden">
-                <Menu className="h-6 w-6" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent>
-              <div className="flex flex-col space-y-4 mt-8">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="text-foreground/80 hover:text-primary transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-                <div className="flex space-x-4 mt-4">
-                  {socialLinks.map((social) => (
-                    <a
-                      key={social.label}
-                      href={social.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-foreground/80 hover:text-primary transition-colors"
-                    >
-                      <social.icon className="h-5 w-5" />
-                    </a>
-                  ))}
-                </div>
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden"
+            onClick={() => setIsOpen(!isOpen)}
+            aria-label="Toggle menu"
+          >
+            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden border-t"
+          >
+            <div className="bg-background px-4 py-6 space-y-4">
+              {navItems.map((item) => (
                 <Button
-                  asChild
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 w-full"
+                  key={item.href}
+                  variant="ghost"
+                  onClick={() => handleNavClick(item)}
+                  className="w-full text-left justify-start"
                 >
+                  {item.label}
+                </Button>
+              ))}
+              <div className="flex items-center space-x-4 pt-4 border-t">
+                <a
+                  href={socialLinks.youtube}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-primary transition-colors"
+                >
+                  <Youtube className="h-5 w-5" />
+                </a>
+                <a
+                  href={socialLinks.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-primary transition-colors"
+                >
+                  <Instagram className="h-5 w-5" />
+                </a>
+                <Button asChild className="w-full">
                   <a
-                    href="https://patreon.com"
+                    href={socialLinks.patreon}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -129,11 +140,11 @@ const Navigation = () => {
                   </a>
                 </Button>
               </div>
-            </SheetContent>
-          </Sheet>
-        </div>
-      </div>
-    </nav>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </header>
   );
 };
 
