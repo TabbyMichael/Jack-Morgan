@@ -15,6 +15,7 @@ import {
   Send
 } from 'lucide-react';
 import { toast } from "sonner";
+import { Logo } from "@/components/ui/logo";
 
 const ContactContent = () => {
   const [formData, setFormData] = useState({
@@ -182,7 +183,7 @@ const ContactContent = () => {
                 rel="noopener noreferrer"
                 className="p-2 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors"
               >
-                <Youtube className="h-6 w-6 text-primary" />
+                <Logo type="youtube" size={28} className="opacity-80" />
               </a>
               <a 
                 href="https://instagram.com/jackmorgan_RLP" 
@@ -190,7 +191,7 @@ const ContactContent = () => {
                 rel="noopener noreferrer"
                 className="p-2 rounded-full bg-primary/10 hover:bg-primary/20 transition-colors"
               >
-                <Instagram className="h-6 w-6 text-primary" />
+                <Logo type="instagram" size={28} className="opacity-80" />
               </a>
             </div>
           </Card>

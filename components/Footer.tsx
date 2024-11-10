@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { toast } from "sonner";
 import { scrollToSection } from "@/lib/utils";
 import { usePathname } from "next/navigation";
+import { Logo } from "@/components/ui/logo";
 
 const Footer = () => {
   const [email, setEmail] = useState('');
@@ -44,17 +45,17 @@ const Footer = () => {
                 href="https://youtube.com/@JackMorgan_RLP" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-red-500 transition-colors"
+                className="text-gray-400 hover:opacity-80 transition-opacity"
               >
-                <Youtube className="h-6 w-6" />
+                <Logo type="youtube" size={28} />
               </a>
               <a 
                 href="https://instagram.com/jackmorgan_RLP" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-gray-400 hover:text-pink-500 transition-colors"
+                className="text-gray-400 hover:opacity-80 transition-opacity"
               >
-                <Instagram className="h-6 w-6" />
+                <Logo type="instagram" size={28} />
               </a>
               <a 
                 href="https://twitter.com" 

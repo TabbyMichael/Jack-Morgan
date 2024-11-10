@@ -2,7 +2,7 @@
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Car, Keyboard as Skateboard, Mic, Heart, Youtube, Instagram } from 'lucide-react';
+import { Logo } from "@/components/ui/logo";
 import Image from 'next/image';
 
 const AboutContent = () => {
@@ -20,7 +20,7 @@ const AboutContent = () => {
       {/* Origin Story */}
       <Card className="p-8 mb-8">
         <div className="flex items-center gap-4 mb-6">
-          <Car className="h-8 w-8 text-primary" />
+          <Logo type="youtube" size={32} />
           <h2 className="text-2xl font-semibold">The RLP Origin Story</h2>
         </div>
         <p className="text-lg mb-6">
@@ -42,7 +42,7 @@ const AboutContent = () => {
       {/* Skate House */}
       <Card className="p-8 mb-8">
         <div className="flex items-center gap-4 mb-6">
-          <Skateboard className="h-8 w-8 text-primary" />
+          <Logo type="youtube" size={32} />
           <h2 className="text-2xl font-semibold">The Skate House Philosophy</h2>
         </div>
         <p className="text-lg mb-6">
@@ -59,7 +59,7 @@ const AboutContent = () => {
       {/* The Man, The Myth */}
       <Card className="p-8 mb-12">
         <div className="flex items-center gap-4 mb-6">
-          <Mic className="h-8 w-8 text-primary" />
+          <Logo type="youtube" size={32} />
           <h2 className="text-2xl font-semibold">The Man Behind the Madness</h2>
         </div>
         <p className="text-lg mb-6">
@@ -70,13 +70,13 @@ const AboutContent = () => {
         <div className="flex items-center justify-center gap-6">
           <Button variant="outline" className="gap-2" asChild>
             <a href="https://youtube.com/@JackMorgan_RLP" target="_blank" rel="noopener noreferrer">
-              <Youtube className="h-5 w-5" />
+              <Logo type="youtube" size={24} />
               YouTube
             </a>
           </Button>
           <Button variant="outline" className="gap-2" asChild>
             <a href="https://instagram.com/jackmorgan_RLP" target="_blank" rel="noopener noreferrer">
-              <Instagram className="h-5 w-5" />
+              <Logo type="instagram" size={24} />
               Instagram
             </a>
           </Button>
@@ -85,7 +85,7 @@ const AboutContent = () => {
 
       {/* Join the Community */}
       <Card className="p-8 text-center bg-primary/5 border-primary/20">
-        <Heart className="h-12 w-12 text-primary mx-auto mb-4" />
+        <Logo type="youtube" size={48} className="h-12 w-12 text-primary mx-auto mb-4" />
         <h2 className="text-2xl font-bold mb-4">Join the RLP Family</h2>
         <p className="text-muted-foreground mb-6">
           Whether you&apos;re here for the laughs, the skateboarding tips, or the business insights 
