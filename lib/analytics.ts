@@ -1,8 +1,19 @@
-// Add analytics tracking
+import { Analytics, logEvent } from 'firebase/analytics';
+import { analytics } from '@/lib/firebase';
+
+// Explicitly type the analytics instance
+const firebaseAnalytics: Analytics | undefined = analytics;
+
 export function trackPageView(url: string) {
-  // Implementation depends on your analytics provider
+  if (firebaseAnalytics) {
+    logEvent(firebaseAnalytics, 'page_view', {
+      page_path: url
+    });
+  }
 }
 
-export function trackEvent(name: string, properties?: Record<string, any>) {
-  // Implementation depends on your analytics provider
-} 
+export function trackAuthEvent(eventName: string, properties?: Record<string, any>) {
+  if (firebaseAnalytics) {
+    logEvent(firebaseAnalytics, eventName, properties);
+  }
+}

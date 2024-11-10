@@ -1,36 +1,90 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Phone } from 'lucide-react';
 import Link from 'next/link';
-import { Separator } from "@/components/ui/separator";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 import Image from 'next/image';
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from "sonner";
 
 const AuthContent = () => {
-  const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [confirmationResult, setConfirmationResult] = useState<any>(null);
+  const [showVerification, setShowVerification] = useState(false);
+  
   const pathname = usePathname();
+  const router = useRouter();
+  const { signInWithGoogle, signInWithPhone, user } = useAuth();
   const isSignUp = pathname === '/auth/signup';
 
+  useEffect(() => {
+    console.log('Current user:', user);
+  }, [user]);
+
   const handleGoogleSignIn = async () => {
-    setIsLoading(true);
-    // Add your Google sign-in logic here
-    setIsLoading(false);
+    try {
+      setIsLoading(true);
+      await signInWithGoogle();
+      toast.success('Successfully signed in with Google!');
+      router.push('/');
+    } catch (error) {
+      toast.error('Failed to sign in with Google');
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleEmailSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    // Add your email sign-in logic here
-    setIsLoading(false);
+  const handlePhoneSignIn = async () => {
+    try {
+      setIsLoading(true);
+      console.log('Attempting phone sign in with:', phoneNumber);
+      const result = await signInWithPhone(phoneNumber);
+      console.log('Phone verification result:', result);
+      setConfirmationResult(result);
+      setShowVerification(true);
+      toast.success('Verification code sent!');
+    } catch (error: any) {
+      console.error('Detailed phone sign-in error:', {
+        message: error.message,
+        code: error.code,
+        fullError: error
+      });
+      if (error.code === 'auth/invalid-phone-number') {
+        toast.error('Invalid phone number format');
+      } else if (error.code === 'auth/too-many-requests') {
+        toast.error('Too many attempts. Please try again later');
+      } else if (error.code === 'auth/recaptcha-error') {
+        toast.error('reCAPTCHA verification failed');
+        window.recaptchaVerifier?.clear();
+      } else {
+        toast.error(`Failed to send verification code: ${error.message}`);
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handlePhoneSignIn = () => {
-    // Add your phone sign-in navigation logic here
+  const handleVerifyCode = async () => {
+    try {
+      setIsLoading(true);
+      await confirmationResult.confirm(verificationCode);
+      toast.success('Successfully signed in!');
+      router.push('/');
+    } catch (error) {
+      toast.error('Invalid verification code');
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -70,49 +124,81 @@ const AuthContent = () => {
           </div>
         </Button>
 
-        {/* Phone Sign In */}
-        <Button 
-          variant="outline" 
-          onClick={handlePhoneSignIn}
-          disabled={isLoading}
-          className="w-full mb-6"
-        >
-          <Phone className="h-4 w-4 mr-2" />
-          {isSignUp ? 'Sign up' : 'Sign in'} with Phone
-        </Button>
-
-        <div className="relative mb-6">
-          <Separator />
-          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-2 text-xs text-muted-foreground">
-            OR CONTINUE WITH
-          </span>
+        <div className="relative my-4">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              Or continue with
+            </span>
+          </div>
         </div>
 
-        {/* Email Sign In */}
-        <form onSubmit={handleEmailSignIn} className="space-y-4">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium mb-2">
-              Email
+        {/* Phone Sign In */}
+        {!showVerification ? (
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-2">
+              Phone Number
+            </label>
+            <div className="mb-2">
+              <PhoneInput
+                country={'us'}
+                value={phoneNumber}
+                onChange={(phone) => setPhoneNumber("+" + phone)}
+                inputClass="!w-full !h-10 !text-base !text-foreground"
+                containerClass="!w-full"
+                buttonClass="!h-10"
+                disabled={isLoading}
+                inputStyle={{
+                  backgroundColor: 'transparent',
+                  borderColor: 'hsl(var(--input))',
+                  color: 'inherit'
+                }}
+                dropdownStyle={{
+                  backgroundColor: 'hsl(var(--background))',
+                  color: 'hsl(var(--foreground))'
+                }}
+              />
+            </div>
+            <Button 
+              variant="default"
+              onClick={handlePhoneSignIn}
+              disabled={isLoading || !phoneNumber || phoneNumber.length < 10}
+              className="w-full"
+            >
+              <Phone className="h-4 w-4 mr-2" />
+              Send verification code
+            </Button>
+          </div>
+        ) : (
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-2">
+              Verification Code
             </label>
             <Input
-              id="email"
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full"
+              type="text"
+              placeholder="Enter 6-digit code"
+              value={verificationCode}
+              onChange={(e) => setVerificationCode(e.target.value)}
+              className="mb-2 text-foreground"
+              maxLength={6}
             />
+            <Button 
+              onClick={handleVerifyCode}
+              disabled={isLoading || !verificationCode || verificationCode.length !== 6}
+              className="w-full"
+            >
+              Verify Code
+            </Button>
           </div>
+        )}
 
-          <Button 
-            type="submit" 
-            className="w-full"
-            disabled={isLoading}
-          >
-            {isSignUp ? 'Sign up' : 'Sign in'}
-          </Button>
-        </form>
+        <div 
+          id="recaptcha-container" 
+          className="invisible"
+          style={{ position: 'fixed', bottom: '0', left: '0' }}
+        ></div>
 
         <div className="mt-6 text-center text-sm">
           <span className="text-muted-foreground">
