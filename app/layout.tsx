@@ -8,9 +8,22 @@ import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ['latin'] });
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 
+  (process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:3000' 
+    : 'https://jackmorgan-rlp.com'); // Replace with your production domain
+
 export const metadata: Metadata = {
-  title: 'Jack Morgan - Comedian, Skater, Entrepreneur',
-  description: 'Join Jack Morgan\'s world of comedy, skateboarding, and business. Get exclusive content, merch, and more!',
+  metadataBase: new URL(baseUrl),
+  title: 'Jack Morgan RLP - Comedy, Skateboarding & Business',
+  description: 'Join Jack Morgan RLP\'s world of comedy, skateboarding, and business insights. Watch latest content and join the community.',
+  openGraph: {
+    title: 'Jack Morgan RLP',
+    description: 'Comedy. Skateboarding. Business.',
+    images: [{
+      url: '/assets/brand/og-image.jpg',
+    }],
+  },
 };
 
 export default function RootLayout({

@@ -4,13 +4,47 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
+import Image from 'next/image';
+import { cn } from '@/lib/utils';
 
 const HeroSection = () => {
-  const [currentBg, setCurrentBg] = useState(0);
+  const [currentBg, setCurrentBg] = useState(3);
   const backgrounds = [
-    'https://images.unsplash.com/photo-1485115905815-74a5c9fda2f5?auto=format&fit=crop&q=80', // Comedy
-    'https://images.unsplash.com/photo-1564982752979-3f7bc974d29a?auto=format&fit=crop&q=80', // Skateboarding
-    'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80', // Business
+    {
+      src: '/assets/images/brand/channels4_banner.jpg',
+      alt: 'Jack Morgan RLP Banner',
+      priority: true
+    },
+    {
+      src: '/assets/images/hero/BG 1.jpg',
+      alt: 'Jack Morgan RLP Featured Banner',
+      priority: false
+    },
+    {
+      src: '/assets/images/hero/BG 2.jpg',
+      alt: 'Jack Morgan RLP Featured Banner',
+      priority: false
+    },
+    {
+      src: '/assets/images/hero/BG 3.jpg',
+      alt: 'Jack Morgan RLP Featured Banner',
+      priority: false
+    },
+    {
+      src: '/assets/images/hero/BG 4.jpg',
+      alt: 'Jack Morgan RLP Featured Banner',
+      priority: false
+    },
+    {
+      src: '/assets/images/hero/BG 5.jpg',
+      alt: 'Jack Morgan RLP Featured Banner',
+      priority: false
+    },
+    {
+      src: '/assets/images/hero/BG 6.jpg',
+      alt: 'Jack Morgan RLP Featured Banner',
+      priority: false
+    }
   ];
 
   useEffect(() => {
@@ -24,16 +58,21 @@ const HeroSection = () => {
     <section className="relative h-screen flex items-center justify-center overflow-hidden">
       {/* Background Images */}
       {backgrounds.map((bg, index) => (
-        <div
-          key={bg}
-          className="absolute inset-0 transition-opacity duration-1000"
-          style={{
-            opacity: currentBg === index ? 1 : 0,
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url(${bg})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
+        <div key={bg.src} className="absolute inset-0">
+          <Image
+            src={bg.src}
+            alt={bg.alt}
+            fill
+            priority={bg.priority}
+            className={cn(
+              "object-cover transition-opacity duration-1000 brightness-110 contrast-110",
+              currentBg === index ? "opacity-100" : "opacity-0"
+            )}
+          />
+          <div 
+            className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/25 to-transparent" 
+          /> 
+        </div>
       ))}
 
       {/* Content */}
@@ -42,16 +81,16 @@ const HeroSection = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-5xl md:text-7xl font-bold mb-6"
+          className="text-5xl md:text-7xl font-bold mb-6 drop-shadow-lg"
         >
-          Welcome to Jack&apos;s World
+          Jack Morgan RLP
         </motion.h1>
         
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-xl md:text-2xl mb-8"
+          className="text-xl md:text-2xl mb-8 drop-shadow-md"
         >
           Comedy. Skateboarding. Business.<br />
           Living life on the edge and making it look good!
@@ -79,7 +118,7 @@ const HeroSection = () => {
             className="bg-white/10 hover:bg-white/20 text-white border-white"
             asChild
           >
-            <a href="https://patreon.com" target="_blank" rel="noopener noreferrer">
+            <a href="https://patreon.com/JackMorganRLP" target="_blank" rel="noopener noreferrer">
               Join the Party on Patreon
             </a>
           </Button>

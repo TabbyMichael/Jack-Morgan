@@ -24,14 +24,14 @@
     --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
+    --primary: var(--neon-red);
+    --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
     --muted: 0 0% 96.1%;
     --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
+    --accent: var(--neon-red-dark);
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 89.8%;
@@ -43,6 +43,9 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+    --neon-red: 0 100% 50%;
+    --neon-red-glow: 0 100% 60%;
+    --neon-red-dark: 0 100% 40%;
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -51,14 +54,14 @@
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
+    --primary: var(--neon-red-glow);
+    --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 14.9%;
     --secondary-foreground: 0 0% 98%;
     --muted: 0 0% 14.9%;
     --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
+    --accent: var(--neon-red);
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 14.9%;
@@ -78,5 +81,27 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .neon-text {
+    color: hsl(var(--neon-red));
+    text-shadow: 
+      0 0 7px hsl(var(--neon-red)),
+      0 0 10px hsl(var(--neon-red)),
+      0 0 21px hsl(var(--neon-red)),
+      0 0 42px hsl(var(--neon-red-glow)),
+      0 0 82px hsl(var(--neon-red-glow)),
+      0 0 92px hsl(var(--neon-red-glow));
+  }
+
+  .neon-border {
+    border-color: hsl(var(--neon-red));
+    box-shadow: 
+      0 0 7px hsl(var(--neon-red)),
+      0 0 10px hsl(var(--neon-red)),
+      0 0 21px hsl(var(--neon-red)),
+      inset 0 0 7px hsl(var(--neon-red));
   }
 }
