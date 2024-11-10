@@ -3,10 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Youtube, Instagram, Menu, X } from "lucide-react";
+import { Youtube, Instagram, Menu, X, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { scrollToSection } from "@/lib/utils";
+import { Logo } from "@/components/ui/logo";
 
 const socialLinks = {
   youtube: "https://www.youtube.com/@JackMorgan_RLP",
@@ -69,7 +70,7 @@ const Navigation = () => {
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors"
               >
-                <Youtube className="h-5 w-5" />
+                <Logo type="youtube" size={24} />
               </a>
               <a
                 href={socialLinks.instagram}
@@ -77,8 +78,14 @@ const Navigation = () => {
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors"
               >
-                <Instagram className="h-5 w-5" />
+                <Logo type="instagram" size={24} />
               </a>
+              <Link
+                href="/auth"
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
+                <User className="h-5 w-5" />
+              </Link>
             </div>
           </div>
 
@@ -120,7 +127,7 @@ const Navigation = () => {
                   rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
-                  <Youtube className="h-5 w-5" />
+                  <Logo type="youtube" size={24} />
                 </a>
                 <a
                   href={socialLinks.instagram}
@@ -128,7 +135,7 @@ const Navigation = () => {
                   rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
-                  <Instagram className="h-5 w-5" />
+                  <Logo type="instagram" size={24} />
                 </a>
                 <Button asChild className="w-full">
                   <a

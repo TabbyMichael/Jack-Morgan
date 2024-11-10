@@ -1,52 +1,57 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import Image from 'next/image';
-import { Play, Clock } from 'lucide-react';
+import { Play, Clock, ThumbsUp } from 'lucide-react';
+import { getYouTubeVideos } from '@/lib/youtube';
 
 const contentCategories = [
   { value: "all", label: "All Content" },
-  { value: "comedy", label: "Comedy" },
-  { value: "skateboarding", label: "Skateboarding" },
+  { value: "podcast", label: "Red Leather Pod" },
+  { value: "society", label: "Society" },
   { value: "business", label: "Business" },
+  { value: "relationships", label: "Relationships" },
+  { value: "conspiracy", label: "Conspiracy" },
+  { value: "other", label: "Other" }
 ];
 
-const contentItems = [
-  {
-    id: 1,
-    title: "How to Kickflip Like a Pro",
-    category: "skateboarding",
-    thumbnail: "https://images.unsplash.com/photo-1621544402532-78c290378d82?auto=format&fit=crop&q=80",
-    duration: "12:34",
-    date: "3 days ago",
-  },
-  {
-    id: 2,
-    title: "Stand-up Comedy Special 2024",
-    category: "comedy",
-    thumbnail: "https://images.unsplash.com/photo-1585699324551-f6c309eedeca?auto=format&fit=crop&q=80",
-    duration: "45:00",
-    date: "1 week ago",
-  },
-  {
-    id: 3,
-    title: "Creator Economy Masterclass",
-    category: "business",
-    thumbnail: "https://images.unsplash.com/photo-1664575602554-2087b04935a5?auto=format&fit=crop&q=80",
-    duration: "28:15",
-    date: "2 weeks ago",
-  },
-  // Add more content items as needed
-];
+interface YouTubeVideo {
+  id: string;
+  title: string;
+  description: string;
+  thumbnail: string;
+  category: string;
+  views: string;
+  duration: string;
+  date: string;
+}
 
 const LatestContent = () => {
   const [activeTab, setActiveTab] = useState("all");
+  const [videos, setVideos] = useState<YouTubeVideo[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const filteredContent = contentItems.filter(
-    item => activeTab === "all" || item.category === activeTab
+  useEffect(() => {
+    const fetchVideos = async () => {
+      try {
+        setIsLoading(true);
+        const videos = await getYouTubeVideos(12);
+        setVideos(videos);
+      } catch (error) {
+        console.error('Error fetching videos:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchVideos();
+  }, []);
+
+  const filteredContent = videos.filter(
+    video => activeTab === "all" || video.category.toLowerCase() === activeTab
   );
 
   return (
@@ -55,12 +60,12 @@ const LatestContent = () => {
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Latest Content</h2>
           <p className="text-muted-foreground text-lg">
-            Watch the newest videos across comedy, skateboarding, and business
+            Watch Jack&apos;s newest videos and podcasts
           </p>
         </div>
 
         <Tabs defaultValue="all" className="w-full">
-          <TabsList className="flex justify-center mb-8">
+          <TabsList className="flex justify-center mb-8 flex-wrap gap-2">
             {contentCategories.map((category) => (
               <TabsTrigger
                 key={category.value}
@@ -74,36 +79,75 @@ const LatestContent = () => {
           </TabsList>
 
           <TabsContent value={activeTab} className="mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredContent.map((item) => (
-                <Card key={item.id} className="overflow-hidden group cursor-pointer">
-                  <CardContent className="p-0">
-                    <div className="relative aspect-video">
-                      <Image
-                        src={item.thumbnail}
-                        alt={item.title}
-                        fill
-                        className="object-cover transition-transform group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <Play className="w-12 h-12 text-white" />
+            {isLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <Card key={i} className="overflow-hidden">
+                    <CardContent className="p-0">
+                      <div className="aspect-video bg-gray-200 animate-pulse" />
+                      <div className="p-4">
+                        <div className="h-4 bg-gray-200 rounded animate-pulse mb-2" />
+                        <div className="h-4 bg-gray-200 rounded animate-pulse w-2/3" />
                       </div>
-                      <div className="absolute bottom-4 right-4 bg-black/70 px-2 py-1 rounded-md flex items-center">
-                        <Clock className="w-4 h-4 text-white mr-1" />
-                        <span className="text-white text-sm">{item.duration}</span>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : filteredContent.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">No videos found</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredContent.map((video) => (
+                  <Card 
+                    key={video.id} 
+                    className="overflow-hidden group cursor-pointer hover:shadow-lg transition-all duration-300"
+                    onClick={() => window.open(`https://youtube.com/watch?v=${video.id}`, '_blank')}
+                  >
+                    <CardContent className="p-0">
+                      <div className="relative aspect-video">
+                        <Image
+                          src={video.thumbnail}
+                          alt={video.title}
+                          fill
+                          className="object-cover transition-transform group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <Play className="w-12 h-12 text-white" />
+                        </div>
+                        <div className="absolute bottom-4 right-4 bg-black/70 px-2 py-1 rounded-md flex items-center">
+                          <Clock className="w-4 h-4 text-white mr-1" />
+                          <span className="text-white text-sm">{video.duration}</span>
+                        </div>
                       </div>
-                    </div>
-                    <div className="p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <Badge variant="secondary">{item.category}</Badge>
-                        <span className="text-sm text-muted-foreground">{item.date}</span>
+                      <div className="p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <Badge 
+                            variant="secondary" 
+                            className="capitalize"
+                          >
+                            {video.category}
+                          </Badge>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <ThumbsUp className="w-4 h-4" />
+                            <span>{video.views}</span>
+                            <span>•</span>
+                            <span>{video.date}</span>
+                          </div>
+                        </div>
+                        <h3 className="font-semibold text-lg line-clamp-2 mb-2">
+                          {video.title}
+                        </h3>
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {video.description}
+                        </p>
                       </div>
-                      <h3 className="font-semibold text-lg line-clamp-2">{item.title}</h3>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>
@@ -111,4 +155,4 @@ const LatestContent = () => {
   );
 };
 
-export default LatestContent; 
+export default LatestContent;
