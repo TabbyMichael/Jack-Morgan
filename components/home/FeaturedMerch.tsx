@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import { scrollToSection } from "@/lib/utils";
+import { useCart } from "@/contexts/CartContext";
 
 const merchItems = [
   {
@@ -35,6 +36,8 @@ const merchItems = [
 ];
 
 const FeaturedMerch = () => {
+  const { addToCart } = useCart();
+
   return (
     <section id="merch" className="py-16 bg-muted/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -67,7 +70,10 @@ const FeaturedMerch = () => {
                   <p className="text-muted-foreground mb-4">{item.description}</p>
                   <div className="flex items-center justify-between">
                     <span className="text-2xl font-bold">${item.price}</span>
-                    <Button className="group-hover:bg-primary/90">
+                    <Button
+                      className="group-hover:bg-primary/90"
+                      onClick={() => addToCart({ ...item, quantity: 1 })}
+                    >
                       <ShoppingCart className="mr-2 h-4 w-4" />
                       Add to Cart
                     </Button>
