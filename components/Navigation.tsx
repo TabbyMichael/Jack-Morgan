@@ -3,11 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Youtube, Instagram, Menu, X, User } from "lucide-react";
+import { Youtube, Instagram, Menu, X, User, ShoppingCart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { scrollToSection } from "@/lib/utils";
 import { Logo } from "@/components/ui/logo";
+import { useCart } from "@/contexts/CartContext"; // Correct import
 
 const socialLinks = {
   youtube: "https://www.youtube.com/@JackMorgan_RLP",
@@ -18,6 +19,7 @@ const socialLinks = {
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const { cart } = useCart(); // Use the cart context
 
   const navItems = [
     { href: "/", label: "Home" },
@@ -80,11 +82,16 @@ const Navigation = () => {
               >
                 <Logo type="instagram" size={24} />
               </a>
-              <Link
-                href="/auth"
-                className="text-muted-foreground hover:text-primary transition-colors"
-              >
+              <Link href="/auth" className="text-muted-foreground hover:text-primary transition-colors">
                 <User className="h-5 w-5" />
+              </Link>
+              <Link href="/cart" className="relative">
+                <ShoppingCart className="h-5 w-5" />
+                {cart.length > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full text-xs w-5 h-5 flex items-center justify-center">
+                    {cart.length}
+                  </span>
+                )}
               </Link>
             </div>
           </div>

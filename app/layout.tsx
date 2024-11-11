@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from '@/contexts/AuthContext';
+import { CartProvider } from '@/contexts/CartContext';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { Toaster } from "@/components/ui/sonner";
@@ -42,10 +43,12 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            <Navigation />
-            <main className="min-h-screen">{children}</main>
-            <Footer />
-            <Toaster />
+            <CartProvider>
+              <Navigation />
+              <main className="min-h-screen">{children}</main>
+              <Footer />
+              <Toaster />
+            </CartProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>
