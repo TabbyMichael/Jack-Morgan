@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingCart } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { scrollToSection } from "@/lib/utils";
 import { useCart } from "@/contexts/CartContext";
 
@@ -52,33 +53,38 @@ const FeaturedMerch = () => {
           {merchItems.map((item) => (
             <Card key={item.id} className="group overflow-hidden">
               <CardContent className="p-0">
-                <div className="relative aspect-square">
-                  <Image
-                    src={item.image}
-                    alt={item.name}
-                    fill
-                    className="object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                  {item.badge && (
-                    <Badge className="absolute top-4 right-4 z-10">
-                      {item.badge}
-                    </Badge>
-                  )}
-                </div>
-                <div className="p-6">
-                  <h3 className="text-xl font-semibold mb-2">{item.name}</h3>
-                  <p className="text-muted-foreground mb-4">{item.description}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold">${item.price}</span>
-                    <Button
-                      className="group-hover:bg-primary/90"
-                      onClick={() => addToCart({ ...item, quantity: 1 })}
-                    >
-                      <ShoppingCart className="mr-2 h-4 w-4" />
-                      Add to Cart
-                    </Button>
+                <Link href={`/product/${item.id}`} className="cursor-pointer">
+                  <div className="relative aspect-square">
+                    <Image
+                      src={item.image}
+                      alt={item.name}
+                      fill
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                    {item.badge && (
+                      <Badge className="absolute top-4 right-4 z-10">
+                        {item.badge}
+                      </Badge>
+                    )}
                   </div>
-                </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-semibold mb-2">{item.name}</h3>
+                    <p className="text-muted-foreground mb-4">{item.description}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-2xl font-bold">${item.price}</span>
+                      <Button
+                        className="group-hover:bg-primary/90"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          addToCart({ ...item, quantity: 1 });
+                        }}
+                      >
+                        <ShoppingCart className="mr-2 h-4 w-4" />
+                        Add to Cart
+                      </Button>
+                    </div>
+                  </div>
+                </Link>
               </CardContent>
             </Card>
           ))}
