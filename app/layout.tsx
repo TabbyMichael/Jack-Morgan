@@ -6,7 +6,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { CartProvider } from '@/contexts/CartContext';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from 'sonner';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -47,7 +47,7 @@ export default function RootLayout({
               <Navigation />
               <main className="min-h-screen">{children}</main>
               <Footer />
-              <Toaster />
+              <Toaster richColors position="top-center" />
             </CartProvider>
           </AuthProvider>
         </ThemeProvider>
