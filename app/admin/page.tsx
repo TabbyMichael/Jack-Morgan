@@ -53,6 +53,13 @@ interface InventoryItem {
   threshold: number;
 }
 
+interface Product {
+  name: string;
+  stock: number;
+  threshold: number;
+  [key: string]: any;
+}
+
 export default function AdminDashboard() {
   const [metrics, setMetrics] = useState<DashboardMetric[]>([]);
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
@@ -118,7 +125,7 @@ export default function AdminDashboard() {
       const lowStock = productsSnapshot.docs
         .map(doc => ({
           id: doc.id,
-          ...doc.data(),
+          ...(doc.data() as Product),
         }))
         .filter(product => product.stock < product.threshold)
         .slice(0, 5) as InventoryItem[];
