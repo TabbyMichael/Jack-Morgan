@@ -1,8 +1,8 @@
 export interface SocialLinks {
-  instagram?: string;
-  twitter?: string;
-  facebook?: string;
-  youtube?: string;
+  instagram: string;
+  twitter: string;
+  facebook: string;
+  youtube: string;
 }
 
 export interface Address {
@@ -22,6 +22,37 @@ export interface PaymentMethod {
   last4?: string;
   expiryDate?: string;
   isDefault: boolean;
+}
+
+export interface OrderItem {
+  id: string;
+  name: string;
+  quantity: number;
+  price: number;
+}
+
+export interface Order {
+  id: string;
+  items: OrderItem[];
+  total: number;
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  date: string;
+}
+
+export interface Event {
+  id: string;
+  title: string;
+  date: string;
+  location: string;
+  description?: string;
+}
+
+export interface SavedItem {
+  id: string;
+  name: string;
+  price: number;
+  image?: string;
+  addedAt: string;
 }
 
 export interface UserPreferences {
@@ -46,10 +77,13 @@ export interface UserProfile {
   photoURL?: string;
   bio?: string;
   location?: string;
-  socialLinks?: SocialLinks;
+  socialLinks?: Partial<SocialLinks>;
   addresses: Address[];
   paymentMethods: PaymentMethod[];
   preferences: UserPreferences;
+  orders?: Order[];
+  events?: Event[];
+  savedItems?: SavedItem[];
   createdAt: string;
   updatedAt: string;
 }
