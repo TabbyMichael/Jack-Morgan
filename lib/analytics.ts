@@ -2,7 +2,7 @@ import { Analytics, logEvent } from 'firebase/analytics';
 import { analytics } from '@/lib/firebase';
 
 // Explicitly type the analytics instance
-const firebaseAnalytics: Analytics | undefined = analytics;
+const firebaseAnalytics: Analytics | null = analytics;
 
 export function trackPageView(url: string) {
   if (firebaseAnalytics) {

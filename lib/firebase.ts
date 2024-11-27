@@ -2,6 +2,7 @@ import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
+import { getAnalytics, isSupported } from 'firebase/analytics';
 
 const firebaseConfig = {
   apiKey: "AIzaSyB24Qbsh1sma_-ALw9yfvVIJRPe3SAcao0",
@@ -19,4 +20,10 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
 
-export { db, auth, storage };
+// Initialize Analytics only in browser environment
+let analytics = null;
+if (typeof window !== 'undefined') {
+  isSupported().then(yes => yes && (analytics = getAnalytics(app)));
+}
+
+export { db, auth, storage, analytics };
