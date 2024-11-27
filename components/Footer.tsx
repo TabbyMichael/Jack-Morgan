@@ -9,10 +9,13 @@ import { toast } from "sonner";
 import { scrollToSection } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import { Logo } from "@/components/ui/logo";
+import { useMediaQuery } from "react-responsive";
 
 const Footer = () => {
   const [email, setEmail] = useState('');
   const pathname = usePathname();
+  const isMobile = useMediaQuery({ maxWidth: 768 });
+  const isTablet = useMediaQuery({ minWidth: 769, maxWidth: 1024 });
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,24 +33,24 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-gray-900 text-white pt-12 pb-6">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+    <footer className="bg-gray-900 text-white pt-6 md:pt-8 pb-4">
+      <div className="max-w-[85%] mx-auto px-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6">
           {/* About Section */}
-          <div>
-            <h3 className="text-xl font-bold mb-4">About RLP</h3>
-            <p className="text-gray-400 mb-4">
+          <div className={`${isMobile ? 'text-center' : ''}`}>
+            <h3 className="text-base md:text-lg font-bold mb-2 md:mb-3">About RLP</h3>
+            <p className="text-gray-400 mb-3 text-xs md:text-sm">
               Join me on this wild ride through comedy, skateboarding, and business. 
               Let&apos;s make some memories and have a blast doing it!
             </p>
-            <div className="flex space-x-4">
+            <div className={`flex space-x-3 ${isMobile ? 'justify-center' : ''}`}>
               <a 
                 href="https://youtube.com/@JackMorgan_RLP" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:opacity-80 transition-opacity"
               >
-                <Logo type="youtube" size={28} />
+                <Logo type="youtube" size={isMobile ? 20 : 24} />
               </a>
               <a 
                 href="https://instagram.com/jackmorgan_RLP" 
@@ -55,7 +58,7 @@ const Footer = () => {
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:opacity-80 transition-opacity"
               >
-                <Logo type="instagram" size={28} />
+                <Logo type="instagram" size={isMobile ? 20 : 24} />
               </a>
               <a 
                 href="https://twitter.com" 
@@ -63,24 +66,24 @@ const Footer = () => {
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-blue-400 transition-colors"
               >
-                <Twitter className="h-6 w-6" />
+                <Twitter className={`${isMobile ? 'h-4 w-4' : 'h-5 w-5'}`} />
               </a>
             </div>
           </div>
 
           {/* Quick Links */}
-          <div>
-            <h3 className="text-xl font-bold mb-4">Quick Links</h3>
-            <ul className="space-y-2">
+          <div className={`${isMobile ? 'text-center' : ''}`}>
+            <h3 className="text-base md:text-lg font-bold mb-2 md:mb-3">Quick Links</h3>
+            <ul className="space-y-1.5">
               <li>
-                <Link href="/content" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/content" className="text-gray-400 hover:text-white transition-colors text-xs md:text-sm">
                   Latest Videos
                 </Link>
               </li>
               <li>
                 <button 
                   onClick={() => handleNavClick('events')}
-                  className="text-gray-400 hover:text-white transition-colors"
+                  className="text-gray-400 hover:text-white transition-colors text-xs md:text-sm"
                 >
                   Upcoming Events
                 </button>
@@ -88,13 +91,13 @@ const Footer = () => {
               <li>
                 <button 
                   onClick={() => handleNavClick('merch')}
-                  className="text-gray-400 hover:text-white transition-colors"
+                  className="text-gray-400 hover:text-white transition-colors text-xs md:text-sm"
                 >
                   Merch Store
                 </button>
               </li>
               <li>
-                <Link href="/blog" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/blog" className="text-gray-400 hover:text-white transition-colors text-xs md:text-sm">
                   Blog
                 </Link>
               </li>
@@ -102,26 +105,26 @@ const Footer = () => {
           </div>
 
           {/* Support */}
-          <div>
-            <h3 className="text-xl font-bold mb-4">Support</h3>
-            <ul className="space-y-2">
+          <div className={`${isMobile ? 'text-center' : ''}`}>
+            <h3 className="text-base md:text-lg font-bold mb-2 md:mb-3">Support</h3>
+            <ul className="space-y-1.5">
               <li>
-                <Link href="/faq" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/contact" className="text-gray-400 hover:text-white transition-colors text-xs md:text-sm">
+                  Contact
+                </Link>
+              </li>
+              <li>
+                <Link href="/faq" className="text-gray-400 hover:text-white transition-colors text-xs md:text-sm">
                   FAQ
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-gray-400 hover:text-white transition-colors">
-                  Contact Us
-                </Link>
-              </li>
-              <li>
-                <Link href="/privacy" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/legal/privacy" className="text-gray-400 hover:text-white transition-colors text-xs md:text-sm">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/legal/terms" className="text-gray-400 hover:text-white transition-colors text-xs md:text-sm">
                   Terms of Service
                 </Link>
               </li>
@@ -129,37 +132,39 @@ const Footer = () => {
           </div>
 
           {/* Newsletter */}
-          <div>
-            <h3 className="text-xl font-bold mb-4">Join the Party!</h3>
-            <p className="text-gray-400 mb-4">
-              Subscribe for exclusive content, early access, and behind-the-scenes fun!
+          <div className={`${isMobile ? 'text-center' : ''}`}>
+            <h3 className="text-base md:text-lg font-bold mb-2 md:mb-3">Newsletter</h3>
+            <p className="text-gray-400 mb-3 text-xs md:text-sm">
+              Subscribe to get updates on new content and merchandise!
             </p>
-            <form onSubmit={handleSubscribe} className="space-y-2">
-              <div className="flex gap-2">
-                <Input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="bg-gray-800 border-gray-700 text-white"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-                <Button type="submit" size="icon" variant="outline">
-                  <Send className="h-4 w-4" />
-                </Button>
-              </div>
+            <form onSubmit={handleSubscribe} className={`flex ${isMobile ? 'flex-col space-y-1.5' : 'space-x-1.5'}`}>
+              <Input
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={`bg-gray-800 border-gray-700 text-white text-xs md:text-sm h-8 ${isMobile ? 'w-full' : 'flex-grow'}`}
+                required
+              />
+              <Button 
+                type="submit" 
+                variant="secondary"
+                className={`${isMobile ? 'w-full' : ''} whitespace-nowrap h-8 text-xs md:text-sm`}
+              >
+                Subscribe <Send className="ml-1.5 h-3 w-3" />
+              </Button>
             </form>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="border-t border-gray-800 pt-8 mt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-400 text-sm mb-4 md:mb-0">
-              © {new Date().getFullYear()} Jack Morgan RLP. A man with no bills is a rich man.
-            </p>
-           
-          </div>
+        {/* Copyright */}
+        <div className={`border-t border-gray-800 pt-4 ${isMobile ? 'text-center' : 'flex justify-between items-center'}`}>
+          <p className="text-gray-400 text-xs">
+            &copy; {new Date().getFullYear()} RLP. All rights reserved.
+          </p>
+          <p className={`text-gray-400 text-xs flex items-center ${isMobile ? 'justify-center mt-2' : ''}`}>
+            Made with <Heart className="h-3 w-3 mx-1 text-red-500" /> by Jack Morgan
+          </p>
         </div>
       </div>
     </footer>
