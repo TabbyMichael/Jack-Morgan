@@ -10,7 +10,7 @@ import {
   query,
   where,
   orderBy,
-  limit,
+  limit as firestoreLimit,
   Timestamp,
   DocumentReference,
 } from 'firebase/firestore';
@@ -146,7 +146,7 @@ export const getProductsByCategory = async (category: string, limit: number = 10
     productsCol,
     where('category', '==', category),
     orderBy('createdAt', 'desc'),
-    limit(limit)
+    firestoreLimit(limit)
   );
   
   const querySnapshot = await getDocs(q);
