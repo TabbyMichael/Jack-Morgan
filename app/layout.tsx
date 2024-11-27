@@ -4,9 +4,11 @@ import { Inter } from 'next/font/google';
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from '@/contexts/AuthContext';
 import { CartProvider } from '@/contexts/CartContext';
+import { LoadingProvider } from '@/contexts/LoadingContext';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { Toaster } from 'sonner';
+import { PageTransition } from '@/components/ui/page-transition';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -36,21 +38,25 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <AuthProvider>
-            <CartProvider>
-              <Navigation />
-              <main className="min-h-screen">{children}</main>
-              <Footer />
-              <Toaster richColors position="top-center" />
-            </CartProvider>
-          </AuthProvider>
-        </ThemeProvider>
+        <LoadingProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <AuthProvider>
+              <CartProvider>
+                <Navigation />
+                <PageTransition>
+                  <main className="min-h-screen">{children}</main>
+                </PageTransition>
+                <Footer />
+                <Toaster richColors position="top-center" />
+              </CartProvider>
+            </AuthProvider>
+          </ThemeProvider>
+        </LoadingProvider>
       </body>
     </html>
   );
