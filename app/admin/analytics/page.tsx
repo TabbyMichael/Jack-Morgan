@@ -160,10 +160,19 @@ export default function AnalyticsPage() {
 
     // Convert to array format with correct property name
     return Object.entries(dailyData)
-      .map(([date, value]) => ({
-        date: format(new Date(date), 'MMM dd'),
-        [type === 'total' ? 'amount' : 'count']: value as number
-      }))
+      .map(([date, value]) => {
+        if (type === 'total') {
+          return {
+            date: format(new Date(date), 'MMM dd'),
+            amount: value as number
+          };
+        } else {
+          return {
+            date: format(new Date(date), 'MMM dd'),
+            count: value as number
+          };
+        }
+      })
       .reverse();
   };
 
