@@ -109,17 +109,17 @@ export default function AnalyticsPage() {
       const data: AnalyticsData = {
         revenue: {
           total: orders.reduce((sum, order) => sum + (order.total || 0), 0),
-          daily: processDailyData(orders, 'total'),
+          daily: processRevenueData(orders),
         },
         orders: {
           total: orders.length,
           status: processOrderStatus(orders),
-          daily: processDailyData(orders, 'count'),
+          daily: processCountData(orders),
         },
         users: {
           total: users.length,
           active: users.filter(user => user.status === 'active').length,
-          new: processDailyData(users, 'count'),
+          new: processCountData(users),
         },
         products: {
           total: 0, // Will be updated when products collection is implemented
@@ -136,7 +136,7 @@ export default function AnalyticsPage() {
     }
   };
 
-  const processDailyData = (data: any[], type: 'total' | 'count') => {
+  const processRevenueData = (data: Order[]) => {
     const dailyData: { [key: string]: number } = {};
     const days = timeRange === '30d' ? 30 : timeRange === '7d' ? 7 : 1;
 
@@ -150,29 +150,43 @@ export default function AnalyticsPage() {
     data.forEach(item => {
       const date = format(item.createdAt, 'yyyy-MM-dd');
       if (dailyData.hasOwnProperty(date)) {
-        if (type === 'total') {
-          dailyData[date] += item.total || 0;
-        } else {
-          dailyData[date] += 1;
-        }
+        dailyData[date] += item.total || 0;
       }
     });
 
-    // Convert to array format with correct property name
+    // Convert to array format
     return Object.entries(dailyData)
-      .map(([date, value]) => {
-        if (type === 'total') {
-          return {
-            date: format(new Date(date), 'MMM dd'),
-            amount: value as number
-          };
-        } else {
-          return {
-            date: format(new Date(date), 'MMM dd'),
-            count: value as number
-          };
-        }
-      })
+      .map(([date, value]) => ({
+        date: format(new Date(date), 'MMM dd'),
+        amount: value
+      }))
+      .reverse();
+  };
+
+  const processCountData = (data: any[]) => {
+    const dailyData: { [key: string]: number } = {};
+    const days = timeRange === '30d' ? 30 : timeRange === '7d' ? 7 : 1;
+
+    // Initialize all dates with 0
+    for (let i = 0; i < days; i++) {
+      const date = format(subDays(new Date(), i), 'yyyy-MM-dd');
+      dailyData[date] = 0;
+    }
+
+    // Aggregate data
+    data.forEach(item => {
+      const date = format(item.createdAt, 'yyyy-MM-dd');
+      if (dailyData.hasOwnProperty(date)) {
+        dailyData[date] += 1;
+      }
+    });
+
+    // Convert to array format
+    return Object.entries(dailyData)
+      .map(([date, value]) => ({
+        date: format(new Date(date), 'MMM dd'),
+        count: value
+      }))
       .reverse();
   };
 
