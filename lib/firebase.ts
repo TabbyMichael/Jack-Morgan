@@ -2,7 +2,7 @@ import { initializeApp, getApps } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
-import { getAnalytics, isSupported } from 'firebase/analytics';
+import { getAnalytics, isSupported, Analytics } from 'firebase/analytics';
 
 const firebaseConfig = {
   apiKey: "AIzaSyB24Qbsh1sma_-ALw9yfvVIJRPe3SAcao0",
@@ -21,7 +21,7 @@ const auth = getAuth(app);
 const storage = getStorage(app);
 
 // Initialize Analytics only in browser environment
-let analytics = null;
+let analytics: Analytics | null = null;
 if (typeof window !== 'undefined') {
   isSupported().then(yes => yes && (analytics = getAnalytics(app)));
 }
