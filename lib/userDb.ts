@@ -7,6 +7,7 @@ import {
   updateDoc,
   serverTimestamp,
   DocumentReference,
+  FieldValue,
 } from 'firebase/firestore';
 import { User } from 'firebase/auth';
 
@@ -17,16 +18,16 @@ export interface UserData {
   phoneNumber?: string | null;
   displayName?: string | null;
   photoURL?: string | null;
-  lastSignIn: Date;
-  createdAt: Date;
-  updatedAt: Date;
+  lastSignIn: Date | FieldValue;
+  createdAt: Date | FieldValue;
+  updatedAt: Date | FieldValue;
   marketingPreferences?: {
     email: boolean;
     sms: boolean;
   };
   // Analytics data
   visits: number;
-  lastVisit: Date;
+  lastVisit: Date | FieldValue;
   // Additional user data
   address?: {
     street?: string;
