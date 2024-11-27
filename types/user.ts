@@ -1,8 +1,8 @@
 export interface SocialLinks {
-  instagram?: string;
-  twitter?: string;
-  facebook?: string;
-  youtube?: string;
+  instagram: string;
+  twitter: string;
+  facebook: string;
+  youtube: string;
 }
 
 export interface Address {
@@ -77,7 +77,7 @@ export interface UserProfile {
   photoURL?: string;
   bio?: string;
   location?: string;
-  socialLinks?: SocialLinks;
+  socialLinks?: Partial<SocialLinks>;
   addresses: Address[];
   paymentMethods: PaymentMethod[];
   preferences: UserPreferences;

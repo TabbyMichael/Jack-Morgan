@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,10 +13,22 @@ import { toast } from "sonner";
 import { storage } from "@/lib/firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
+interface FormData {
+  displayName: string;
+  bio: string;
+  location: string;
+  socialLinks: {
+    instagram: string;
+    twitter: string;
+    facebook: string;
+    youtube: string;
+  };
+}
+
 export default function BasicInfo() {
   const { profile, loading, error, updateProfile } = useUserProfile();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     displayName: "",
     bio: "",
     location: "",
@@ -28,18 +40,17 @@ export default function BasicInfo() {
     }
   });
 
-  // Update form data when profile is loaded
-  useState(() => {
+  useEffect(() => {
     if (profile) {
       setFormData({
         displayName: profile.displayName || "",
         bio: profile.bio || "",
         location: profile.location || "",
-        socialLinks: profile.socialLinks || {
-          instagram: "",
-          twitter: "",
-          facebook: "",
-          youtube: ""
+        socialLinks: {
+          instagram: profile.socialLinks?.instagram || "",
+          twitter: profile.socialLinks?.twitter || "",
+          facebook: profile.socialLinks?.facebook || "",
+          youtube: profile.socialLinks?.youtube || ""
         }
       });
     }
@@ -65,11 +76,11 @@ export default function BasicInfo() {
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files?.[0]) return;
+    if (!e.target.files?.[0] || !profile?.uid) return;
     
     try {
       const file = e.target.files[0];
-      const storageRef = ref(storage, `profile-pictures/${profile?.uid}/${file.name}`);
+      const storageRef = ref(storage, `profile-pictures/${profile.uid}/${file.name}`);
       await uploadBytes(storageRef, file);
       const photoURL = await getDownloadURL(storageRef);
       await updateProfile({ photoURL });
@@ -118,7 +129,11 @@ export default function BasicInfo() {
                 className="hidden"
                 id="profile-picture"
               />
-              <Button variant="outline" onClick={() => document.getElementById("profile-picture")?.click()}>
+              <Button 
+                type="button"
+                variant="outline" 
+                onClick={() => document.getElementById("profile-picture")?.click()}
+              >
                 Change Picture
               </Button>
             </div>
@@ -133,6 +148,7 @@ export default function BasicInfo() {
                 value={formData.displayName}
                 onChange={handleInputChange}
                 placeholder="Your display name" 
+                required
               />
             </div>
 
