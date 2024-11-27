@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { UserData } from '@/lib/userDb';
 import {
@@ -85,11 +85,11 @@ export default function UserList() {
               <TableCell>
                 <div className="flex flex-col text-sm">
                   <span>Visits: {user.visits || 0}</span>
-                  <span>Joined: {user.createdAt ? formatDistanceToNow(user.createdAt, { addSuffix: true }) : 'Unknown'}</span>
+                  <span>Joined: {user.createdAt ? formatDistanceToNow((user.createdAt instanceof Timestamp ? user.createdAt.toDate() : user.createdAt), { addSuffix: true }) : 'Unknown'}</span>
                 </div>
               </TableCell>
               <TableCell>
-                {user.lastVisit ? formatDistanceToNow(user.lastVisit, { addSuffix: true }) : 'Never'}
+                {user.lastVisit ? formatDistanceToNow((user.lastVisit instanceof Timestamp ? user.lastVisit.toDate() : user.lastVisit), { addSuffix: true }) : 'Never'}
               </TableCell>
             </TableRow>
           ))}
