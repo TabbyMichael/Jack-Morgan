@@ -243,7 +243,7 @@ export default function ProductsPage() {
     setImageFile(null);
   };
 
-  const handleDelete = async (productId: string, imageUrl: string) => {
+  const handleDelete = async (productId: string, imageUrl?: string) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
 
     setLoading(true);
