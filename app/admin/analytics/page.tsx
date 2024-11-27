@@ -69,7 +69,7 @@ interface AnalyticsData {
   };
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8']
 
 export default function AnalyticsPage() {
   const [timeRange, setTimeRange] = useState('7d');
@@ -253,20 +253,20 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="space-y-6 pt-8">
+    <div className="max-w-[1300px] mx-auto space-y-8 p-8 mt-8">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-black">Analytics</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-black">Analytics</h1>
         <Select
           value={timeRange}
           onValueChange={(value) => setTimeRange(value)}
         >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select time range" />
+          <SelectTrigger className="w-[140px] sm:w-[180px] text-sm sm:text-base h-8 sm:h-10">
+            <SelectValue placeholder="Select Range" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="24h">Last 24 Hours</SelectItem>
             <SelectItem value="7d">Last 7 Days</SelectItem>
             <SelectItem value="30d">Last 30 Days</SelectItem>
+            <SelectItem value="90d">Last 90 Days</SelectItem>
           </SelectContent>
         </Select>
       </div>
