@@ -58,13 +58,13 @@ export default function BasicInfo() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
-    if (id.includes(".")) {
-      const [parent, child] = id.split(".");
+    if (id.startsWith("socialLinks.")) {
+      const social = id.split(".")[1];
       setFormData(prev => ({
         ...prev,
-        [parent]: {
-          ...prev[parent as keyof typeof prev],
-          [child]: value
+        socialLinks: {
+          ...prev.socialLinks,
+          [social]: value
         }
       }));
     } else {
