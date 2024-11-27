@@ -42,6 +42,11 @@ interface Order {
   status: string;
 }
 
+interface User {
+  createdAt: Date;
+  status: string;
+}
+
 interface AnalyticsData {
   revenue: {
     total: number;
@@ -101,7 +106,7 @@ export default function AnalyticsPage() {
       );
       const usersSnapshot = await getDocs(usersQuery);
       const users = usersSnapshot.docs.map(doc => ({
-        ...doc.data(),
+        ...(doc.data() as User),
         createdAt: doc.data().createdAt?.toDate(),
       }));
 
@@ -163,7 +168,7 @@ export default function AnalyticsPage() {
       .reverse();
   };
 
-  const processCountData = (data: any[]) => {
+  const processCountData = (data: (Order | User)[]) => {
     const dailyData: { [key: string]: number } = {};
     const days = timeRange === '30d' ? 30 : timeRange === '7d' ? 7 : 1;
 
