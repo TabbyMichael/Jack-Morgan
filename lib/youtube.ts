@@ -28,19 +28,46 @@ export async function getYouTubeVideos(maxResults = 9) {
     // Check cache first
     const now = Date.now();
     if (videoCache.data && (now - videoCache.timestamp) < videoCache.CACHE_DURATION) {
+      console.log('Returning cached data');
       return videoCache.data.slice(0, maxResults);
     }
 
-    // If no cached data or cache expired, fetch from API
-    const channelId = process.env.NEXT_PUBLIC_YOUTUBE_CHANNEL_ID;
+    const apiKey = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY;
+    if (!apiKey) {
+      throw new Error('YouTube API key not configured');
+    }
+
+    // Get channel ID from username/handle
+    let channelId = process.env.NEXT_PUBLIC_YOUTUBE_CHANNEL_ID;
     
+    // If it starts with @, it's a handle - need to get channel ID
+    if (channelId?.startsWith('@')) {
+      console.log('Getting channel ID from handle:', channelId);
+      const handleResponse = await fetch(
+        `https://www.googleapis.com/youtube/v3/search?key=${apiKey}&q=${encodeURIComponent(channelId)}&type=channel&part=snippet`
+      );
+
+      if (!handleResponse.ok) {
+        throw new Error(`Channel handle lookup failed: ${await handleResponse.text()}`);
+      }
+
+      const handleData = await handleResponse.json();
+      if (handleData.items && handleData.items.length > 0) {
+        channelId = handleData.items[0].id.channelId;
+        console.log('Found channel ID:', channelId);
+      } else {
+        throw new Error('Channel not found for handle: ' + channelId);
+      }
+    }
+
     if (!channelId) {
       throw new Error('YouTube channel ID not configured');
     }
 
-    // Get videos using the channel ID (single API call)
+    // Get videos using the channel ID
+    console.log('Fetching videos for channel:', channelId);
     const searchResponse = await fetch(
-      `https://www.googleapis.com/youtube/v3/search?key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}&channelId=${channelId}&part=snippet,id&order=date&maxResults=50&type=video`
+      `https://www.googleapis.com/youtube/v3/search?key=${apiKey}&channelId=${channelId}&part=snippet,id&order=date&maxResults=50&type=video`
     );
 
     if (!searchResponse.ok) {
@@ -48,19 +75,23 @@ export async function getYouTubeVideos(maxResults = 9) {
     }
 
     const searchData = await searchResponse.json();
-    
+    console.log('Found videos:', searchData.items?.length || 0);
+
     if (!searchData.items || searchData.items.length === 0) {
-      throw new Error('No videos found');
+      console.error('No videos found in search response');
+      throw new Error('No videos found in channel');
     }
 
-    // Get video details in batches of 50 (YouTube API limit)
+    // Get video details in batches of 50
     const videoIds = searchData.items.map((item: any) => item.id.videoId);
     const videos = [];
-    
+
     for (let i = 0; i < videoIds.length; i += 50) {
       const batchIds = videoIds.slice(i, i + 50).join(',');
+      console.log(`Fetching details for videos ${i + 1}-${i + 50}`);
+      
       const detailsResponse = await fetch(
-        `https://www.googleapis.com/youtube/v3/videos?key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}&id=${batchIds}&part=contentDetails,statistics,snippet`
+        `https://www.googleapis.com/youtube/v3/videos?key=${apiKey}&id=${batchIds}&part=contentDetails,statistics,snippet`
       );
 
       if (!detailsResponse.ok) {
@@ -68,21 +99,25 @@ export async function getYouTubeVideos(maxResults = 9) {
       }
 
       const detailsData = await detailsResponse.json();
-
+      
       videos.push(...detailsData.items.map((details: any) => {
         const searchItem = searchData.items.find((item: any) => item.id.videoId === details.id);
-        return {
+        const video = {
           id: details.id,
           title: details.snippet.title,
           description: details.snippet.description,
-          thumbnail: details.snippet.thumbnails.high.url,
+          thumbnail: details.snippet.thumbnails.high?.url || details.snippet.thumbnails.medium?.url || details.snippet.thumbnails.default?.url,
           category: getCategoryFromTitle(details.snippet.title),
           views: formatViews(details.statistics.viewCount),
           duration: getVideoDuration(details.contentDetails.duration),
           date: formatDate(details.snippet.publishedAt)
         };
+        console.log(`Processed video: ${video.title}`);
+        return video;
       }));
     }
+
+    console.log('Successfully processed videos:', videos.length);
 
     // Update cache
     videoCache = {
@@ -97,6 +132,7 @@ export async function getYouTubeVideos(maxResults = 9) {
     console.error('Error in getYouTubeVideos:', error);
     // Return cached data if available, even if expired
     if (videoCache.data) {
+      console.log('Returning expired cache data due to error');
       return videoCache.data.slice(0, maxResults);
     }
     throw error;
