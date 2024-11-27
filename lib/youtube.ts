@@ -1,7 +1,6 @@
 import { formatDuration } from "date-fns";
 
 export function getVideoDuration(duration: string) {
-  // Convert ISO 8601 duration to readable format
   const match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
   if (!match) return '00:00';
   
@@ -17,103 +16,100 @@ export function getVideoDuration(duration: string) {
   return result;
 }
 
+// Cache for storing video data
+let videoCache: any = {
+  data: null,
+  timestamp: 0,
+  CACHE_DURATION: 5 * 60 * 1000 // 5 minutes in milliseconds
+};
+
 export async function getYouTubeVideos(maxResults = 9) {
   try {
-    // First, get the channel ID using the username
-    const channelResponse = await fetch(
-      `https://www.googleapis.com/youtube/v3/channels?key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}&forUsername=JackMorgan_RLP&part=id,snippet`
+    // Check cache first
+    const now = Date.now();
+    if (videoCache.data && (now - videoCache.timestamp) < videoCache.CACHE_DURATION) {
+      return videoCache.data.slice(0, maxResults);
+    }
+
+    // If no cached data or cache expired, fetch from API
+    const channelId = process.env.NEXT_PUBLIC_YOUTUBE_CHANNEL_ID;
+    
+    if (!channelId) {
+      throw new Error('YouTube channel ID not configured');
+    }
+
+    // Get videos using the channel ID (single API call)
+    const searchResponse = await fetch(
+      `https://www.googleapis.com/youtube/v3/search?key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}&channelId=${channelId}&part=snippet,id&order=date&maxResults=50&type=video`
     );
 
-    if (!channelResponse.ok) {
-      throw new Error(`Channel API failed: ${await channelResponse.text()}`);
+    if (!searchResponse.ok) {
+      throw new Error(`Video search failed: ${await searchResponse.text()}`);
     }
 
-    const channelData = await channelResponse.json();
-    console.log('Channel Data:', channelData);
-
-    // If no channel found by username, try with custom URL
-    let channelId;
-    if (channelData.items && channelData.items.length > 0) {
-      channelId = channelData.items[0].id;
-    } else {
-      // Try getting channel by custom URL
-      const customUrlResponse = await fetch(
-        `https://www.googleapis.com/youtube/v3/search?key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}&q=JackMorgan_RLP&type=channel&part=id,snippet`
-      );
-      
-      if (!customUrlResponse.ok) {
-        throw new Error(`Custom URL search failed: ${await customUrlResponse.text()}`);
-      }
-
-      const customUrlData = await customUrlResponse.json();
-      console.log('Custom URL Search Data:', customUrlData);
-
-      if (!customUrlData.items || customUrlData.items.length === 0) {
-        throw new Error('Could not find channel ID');
-      }
-
-      channelId = customUrlData.items[0].id.channelId;
-    }
-
-    console.log('Found Channel ID:', channelId);
-
-    // Get videos using the found channel ID
-    const response = await fetch(
-      `https://www.googleapis.com/youtube/v3/search?key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}&channelId=${channelId}&part=snippet,id&order=date&maxResults=${maxResults}&type=video`
-    );
-
-    if (!response.ok) {
-      throw new Error(`Video search failed: ${await response.text()}`);
-    }
-
-    const searchData = await response.json();
-    console.log('Video Search Data:', searchData);
-
+    const searchData = await searchResponse.json();
+    
     if (!searchData.items || searchData.items.length === 0) {
-      throw new Error('No videos found in search response');
+      throw new Error('No videos found');
     }
 
-    // Get video details
-    const videoIds = searchData.items.map((item: any) => item.id.videoId).join(',');
-    const detailsResponse = await fetch(
-      `https://www.googleapis.com/youtube/v3/videos?key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}&id=${videoIds}&part=contentDetails,statistics,snippet`
-    );
+    // Get video details in batches of 50 (YouTube API limit)
+    const videoIds = searchData.items.map((item: any) => item.id.videoId);
+    const videos = [];
+    
+    for (let i = 0; i < videoIds.length; i += 50) {
+      const batchIds = videoIds.slice(i, i + 50).join(',');
+      const detailsResponse = await fetch(
+        `https://www.googleapis.com/youtube/v3/videos?key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}&id=${batchIds}&part=contentDetails,statistics,snippet`
+      );
 
-    if (!detailsResponse.ok) {
-      throw new Error(`Video details failed: ${await detailsResponse.text()}`);
+      if (!detailsResponse.ok) {
+        throw new Error(`Video details failed: ${await detailsResponse.text()}`);
+      }
+
+      const detailsData = await detailsResponse.json();
+
+      videos.push(...detailsData.items.map((details: any) => {
+        const searchItem = searchData.items.find((item: any) => item.id.videoId === details.id);
+        return {
+          id: details.id,
+          title: details.snippet.title,
+          description: details.snippet.description,
+          thumbnail: details.snippet.thumbnails.high.url,
+          category: getCategoryFromTitle(details.snippet.title),
+          views: formatViews(details.statistics.viewCount),
+          duration: getVideoDuration(details.contentDetails.duration),
+          date: formatDate(details.snippet.publishedAt)
+        };
+      }));
     }
 
-    const detailsData = await detailsResponse.json();
-    console.log('Video Details Data:', detailsData);
+    // Update cache
+    videoCache = {
+      data: videos,
+      timestamp: now,
+      CACHE_DURATION: videoCache.CACHE_DURATION
+    };
 
-    return searchData.items.map((item: any, index: number) => {
-      const details = detailsData.items[index];
-      return {
-        id: item.id.videoId,
-        title: item.snippet.title,
-        description: item.snippet.description,
-        category: getCategoryFromTitle(item.snippet.title),
-        thumbnail: item.snippet.thumbnails.high?.url || item.snippet.thumbnails.default?.url,
-        duration: getVideoDuration(details.contentDetails.duration),
-        date: formatDate(item.snippet.publishedAt),
-        views: formatViews(details.statistics.viewCount)
-      };
-    });
+    return videos.slice(0, maxResults);
 
   } catch (error) {
     console.error('Error in getYouTubeVideos:', error);
-    throw error; // Re-throw to be handled by the component
+    // Return cached data if available, even if expired
+    if (videoCache.data) {
+      return videoCache.data.slice(0, maxResults);
+    }
+    throw error;
   }
 }
 
-// Update categories to match Jack's content
 function getCategoryFromTitle(title: string): string {
   title = title.toLowerCase();
-  if (title.includes('red leather pod') || title.includes('rlp')) return 'podcast';
-  if (title.includes('society') || title.includes('civilization') || title.includes('western')) return 'society';
-  if (title.includes('business') || title.includes('economy') || title.includes('money')) return 'business';
-  if (title.includes('dating') || title.includes('relationships')) return 'relationships';
-  if (title.includes('conspiracy') || title.includes('aliens')) return 'conspiracy';
+  if (title.includes('pod') || title.includes('podcast')) return 'podcast';
+  if (title.includes('society')) return 'society';
+  if (title.includes('business')) return 'business';
+  if (title.includes('relationship')) return 'relationships';
+  if (title.includes('conspiracy')) return 'conspiracy';
   return 'other';
 }
 
@@ -122,10 +118,9 @@ function formatDate(dateString: string): string {
   const now = new Date();
   const diffTime = Math.abs(now.getTime() - date.getTime());
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
-  if (diffDays === 1) return 'yesterday';
-  if (diffDays < 7) return `${diffDays} days ago`;
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+
+  if (diffDays === 1) return '1 day ago';
+  if (diffDays < 30) return `${diffDays} days ago`;
   if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
   return `${Math.floor(diffDays / 365)} years ago`;
 }
@@ -136,7 +131,3 @@ function formatViews(viewCount: string): string {
   if (count >= 1000) return `${(count / 1000).toFixed(1)}K`;
   return viewCount;
 }
-
-// Add this to your environment variables (.env.local):
-// NEXT_PUBLIC_YOUTUBE_API_KEY=your_api_key_here s
-// NEXT_PUBLIC_YOUTUBE_CHANNEL_ID=your_channel_id_here
