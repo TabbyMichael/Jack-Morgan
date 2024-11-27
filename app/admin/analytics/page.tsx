@@ -36,6 +36,12 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 
+interface Order {
+  createdAt: Date;
+  total: number;
+  status: string;
+}
+
 interface AnalyticsData {
   revenue: {
     total: number;
@@ -83,7 +89,7 @@ export default function AnalyticsPage() {
       );
       const ordersSnapshot = await getDocs(ordersQuery);
       const orders = ordersSnapshot.docs.map(doc => ({
-        ...doc.data(),
+        ...(doc.data() as Order),
         createdAt: doc.data().createdAt?.toDate(),
       }));
 
