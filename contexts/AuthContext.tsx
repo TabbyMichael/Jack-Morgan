@@ -27,6 +27,7 @@ declare global {
 
 interface AuthContextType {
   user: User | null;
+  setUser: (user: User | null) => void;
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
   signInWithPhone: (phoneNumber: string) => Promise<any>;
@@ -141,6 +142,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return (
     <AuthContext.Provider value={{
       user,
+      setUser,
       loading,
       signInWithGoogle,
       signInWithPhone,
