@@ -85,11 +85,11 @@ export default function UserList() {
               <TableCell>
                 <div className="flex flex-col text-sm">
                   <span>Visits: {user.visits || 0}</span>
-                  <span>Joined: {user.createdAt ? formatDistanceToNow((user.createdAt instanceof Timestamp ? user.createdAt.toDate() : user.createdAt), { addSuffix: true }) : 'Unknown'}</span>
+                  <span>Joined: {user.createdAt ? formatDistanceToNow((user.createdAt instanceof Timestamp ? user.createdAt.toDate() : (user.createdAt instanceof Date ? user.createdAt : new Date())), { addSuffix: true }) : 'Unknown'}</span>
                 </div>
               </TableCell>
               <TableCell>
-                {user.lastVisit ? formatDistanceToNow((user.lastVisit instanceof Timestamp ? user.lastVisit.toDate() : user.lastVisit), { addSuffix: true }) : 'Never'}
+                {user.lastVisit ? formatDistanceToNow((user.lastVisit instanceof Timestamp ? user.lastVisit.toDate() : (user.lastVisit instanceof Date ? user.lastVisit : new Date())), { addSuffix: true }) : 'Never'}
               </TableCell>
             </TableRow>
           ))}
