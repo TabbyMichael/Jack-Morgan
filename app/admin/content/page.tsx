@@ -216,119 +216,95 @@ export default function ContentPage() {
   };
 
   return (
-    <div className="space-y-6 pt-8">
-      <div className="flex justify-between items-center">
+    <div className="space-y-8 p-8 mt-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-3xl font-bold text-black">Content Management</h1>
-        <Button onClick={() => setIsAddPostOpen(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          New Post
-        </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Blog Posts</CardTitle>
-          <CardDescription>
-            Manage your blog posts and content
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-2">
-              <Search className="w-4 h-4 text-gray-400" />
-              <Input
-                placeholder="Search posts..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="max-w-sm"
-              />
-            </div>
-            <Select
-              value={statusFilter}
-              onValueChange={setStatusFilter}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Posts</SelectItem>
-                <SelectItem value="draft">Drafts</SelectItem>
-                <SelectItem value="published">Published</SelectItem>
-                <SelectItem value="scheduled">Scheduled</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+      <Tabs defaultValue="pages" className="space-y-4">
+        <TabsList className="w-full sm:w-auto flex justify-between sm:justify-start">
+          <TabsTrigger value="pages" className="flex-1 sm:flex-none">Pages</TabsTrigger>
+          <TabsTrigger value="media" className="flex-1 sm:flex-none">Media</TabsTrigger>
+          <TabsTrigger value="blog" className="flex-1 sm:flex-none">Blog</TabsTrigger>
+        </TabsList>
 
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Author</TableHead>
-                  <TableHead>Publish Date</TableHead>
-                  <TableHead>Last Updated</TableHead>
-                  <TableHead className="w-[100px]">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredPosts.map((post) => (
-                  <TableRow key={post.id}>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium">{post.title}</p>
-                        <p className="text-sm text-gray-500">{post.excerpt}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        className={
-                          post.status === 'published'
-                            ? 'bg-green-100 text-green-800'
-                            : post.status === 'scheduled'
-                            ? 'bg-blue-100 text-blue-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                        }
-                      >
-                        {post.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{post.author}</TableCell>
-                    <TableCell>
-                      {post.publishDate.toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      {formatDistanceToNow(post.updatedAt, { addSuffix: true })}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => {
-                            setSelectedPost(post);
-                            setIsEditPostOpen(true);
-                          }}
-                        >
-                          <Edit2 className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => deletePost(post.id)}
-                          className="text-red-600"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+        <TabsContent value="pages" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Pages</CardTitle>
+              <CardDescription>Manage your website pages</CardDescription>
+            </CardHeader>
+            <CardContent className="p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* Page cards will go here */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Home Page</CardTitle>
+                    <CardDescription>Main landing page</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-gray-500">Last edited: 2 days ago</p>
+                  </CardContent>
+                </Card>
+                {/* Add more page cards */}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="media" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Media Library</CardTitle>
+              <CardDescription>Manage your media files</CardDescription>
+            </CardHeader>
+            <CardContent className="p-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                {/* Media items will go here */}
+                <div className="aspect-square rounded-lg bg-gray-100 flex items-center justify-center">
+                  <p className="text-sm text-gray-500">Upload Media</p>
+                </div>
+                {/* Add more media items */}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="blog" className="space-y-4">
+          <Card>
+            <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <CardTitle>Blog Posts</CardTitle>
+                <CardDescription>Manage your blog content</CardDescription>
+              </div>
+              <Button>
+                <Plus className="w-4 h-4 mr-2" />
+                New Post
+              </Button>
+            </CardHeader>
+            <CardContent className="p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* Blog post cards will go here */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="line-clamp-1">Sample Blog Post</CardTitle>
+                    <CardDescription className="line-clamp-2">
+                      This is a sample blog post description that might be a bit longer...
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex justify-between items-center">
+                      <p className="text-sm text-gray-500">Published: 3 days ago</p>
+                      <Button variant="outline" size="sm">Edit</Button>
+                    </div>
+                  </CardContent>
+                </Card>
+                {/* Add more blog post cards */}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       {/* Add/Edit Post Dialog */}
       <Dialog
