@@ -51,7 +51,6 @@ export default function RootLayout({
                 <PageTransition>
                   <main className="min-h-screen">{children}</main>
                 </PageTransition>
-                <Footer />
                 <Toaster richColors position="top-center" />
               </CartProvider>
             </AuthProvider>
