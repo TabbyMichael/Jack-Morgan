@@ -150,15 +150,19 @@ export default function AnalyticsPage() {
     data.forEach(item => {
       const date = format(item.createdAt, 'yyyy-MM-dd');
       if (dailyData.hasOwnProperty(date)) {
-        dailyData[date] += type === 'total' ? (item.total || 0) : 1;
+        if (type === 'total') {
+          dailyData[date] += item.total || 0;
+        } else {
+          dailyData[date] += 1;
+        }
       }
     });
 
-    // Convert to array format
+    // Convert to array format with correct property name
     return Object.entries(dailyData)
       .map(([date, value]) => ({
         date: format(new Date(date), 'MMM dd'),
-        [type === 'total' ? 'amount' : 'count']: value,
+        [type === 'total' ? 'amount' : 'count']: value as number
       }))
       .reverse();
   };
